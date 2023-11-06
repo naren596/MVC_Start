@@ -7,10 +7,11 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Home</title>
+    <title>Complaint Details</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="~/css/styles.css" />
     <script src="~/js/nav.js" type="module"></script>
+    <script src="~/js/complaint-details.js" type="module"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -23,18 +24,14 @@
     />
   </head>
   <body>
-    <script type="module"></script>
+    <script type="module">
+        import { renderComplaintOverview } from '@Url.Content("~/js/complaint-details.js")';
+        (function () {
+          const id = '@ViewBag.ComplaintId' !== '' ? '@ViewBag.ComplaintId' : null;
+          renderComplaintOverview(id);
+        })();
+    </script>
 
-    <section class="hero text-white text-center py-5">
-      <p class="fst-italic">"Customers don't except you to be perfect. They DO expect you to fix things when they go wrong"</p>
-      <h1 class="pb-2">Consumer Complaint Portal</h1>
-      <p>Platform where consumers can leave reviews for businesses.</p>
-      <a class="btn btn-dark" href="@Url.Action("Complaints", "Home")">Explore Now</a>
-    </section>
-    <footer class="bg-dark text-white py-1 fixed-bottom text-end">
-      <div class="container">
-          <p>&copy; 2023 Consumer Complaint Portal. All rights reserved.</p>
-      </div>
-    </footer>
+    <div class="complaint-details-section" id="complaintOverviewSection"></div>
   </body>
 </html>

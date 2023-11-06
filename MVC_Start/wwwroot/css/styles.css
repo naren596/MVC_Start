@@ -1,0 +1,107 @@
+:root {
+  /* --primary-color: #994c18; */
+  --primary-color: #3d0e14;
+  --secondary-color: #006400;
+  --highlight-color: #FFC300;
+}
+
+body {
+  --bs-body-font-family: var(--bs-font-sans-serif);
+  --bs-body-line-height: 1.4;
+  --bs-body-bg: var(--bs-gray-100);
+  height: 100%;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('../img/complaints-bg-image.jpeg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+#category-count-chart {
+  height: 300px !important;    /* Fixed height for the canvas */
+}
+
+.category-filter-text {
+  align-self: center;
+  font-weight: bolder;
+  text-align: right;
+  color: white;
+}
+
+.icon-color {
+  color: #006747;
+}
+
+.sort-icon-color {
+  color: #006747;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.complaint-details-section {
+  padding: 5px 10px;
+}
+
+.complaint-details-section > .card {
+  margin-bottom: 5px;
+}
+
+.complaint-overview-title {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.complaint-overview-details {
+  margin-top: 15px;
+}
+
+.navbar {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: var(--primary-color);
+  overflow-y: auto;
+}
+
+.nav-link {
+  color: #FFFFFF !important;
+  font-size: 1.25rem !important;
+}
+
+.nav-link:hover {
+  color: var(--highlight-color);
+}
+
+.nav-link.active {
+  color: var(--highlight-color) !important;
+  background-color: #212529;
+}
+
+.hero {
+  width: 50%;
+  margin: 0 auto;  /* Center horizontally */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  /* Center vertically */
+  background-color: var(--primary-color);
+}
+
+table tr td, table tr th{
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.git-log {
+  font-family: monospace;
+  white-space: pre;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.git-author {
+  font-weight: bold;
+}
