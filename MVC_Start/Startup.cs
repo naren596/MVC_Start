@@ -28,7 +28,7 @@ namespace MVC_Start
         {
             // Setup EF connection
             // https://stackoverflow.com/a/43098152/1385857
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration["Data:ConsumerComplaintPortal:ConnectionString"]));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration["Data:ConsumerComplaintPortalAzure:ConnectionString"]));
 
             // added from MVC template
             //services.AddMvc();

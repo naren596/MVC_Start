@@ -1,105 +1,105 @@
-import { getComplaintTrendsData, getComplaintsData} from "./fetch-api-data.js";
-
-async function renderComplaintsTableBody() {
-  const with_complaints = document
-    .getElementById("categoryDropdownMenuSelected")
-    .getAttribute("data-categoryDropdownMenuSelected");
-  const sort_by = document
-    .getElementById("sortDropdownMenuSelected")
-    .getAttribute("data-sortDropdownMenuSelected");
-
-  const with_limit = "size=20"
-  const data = await getComplaintsData({"sort": sort_by, "product": with_complaints, "size": 20, "no_aggs": true});
-  const complaints = data?.hits?.hits ?? [];
-
-  const complaintsTableBody = document.getElementById("complaintsTableBody");
-
-  let counter = 1;
-
-  const rows = complaints.reduce((rows, complaint) => {
-    complaint = complaint._source
-    rows.push(
-      `<tr>
-        <th scope="row">${counter}</th>
-        <td>${complaint.company}</td>
-        <td>
-          <a href="/Home/ComplaintDetails?id=${complaint.complaint_id}" class="link-underline-light">
-            <span class="icon-color">&#128279</span>
-          </a>
-        </td>
-        <td>${complaint.company_response}</td>
-        <td>${complaint.state}</td>
-        <td>${complaint.date_received}</td>
-      </tr>
-    `
-    );
-    counter++;
-    return rows;
-  }, []);
-
-  complaintsTableBody.innerHTML = rows.join(" ");
-}
-
-function onCategoryChange(name, id) {
-  const element = document.getElementById("categoryDropdownMenuSelected");
-  element.innerText = name;
-  element.setAttribute("data-categoryDropdownMenuSelected", id);
-
-  renderComplaintsTableBody();
-}
+import { getComplaintTrendsData} from "./fetch-api-data.js";
 
 async function renderDropDownSource() {
-  const dropdownMenuSource = document.getElementById("categoryDropdownMenuSource");
-
-  let categories = (await getComplaintTrendsData()) ?? {};
-  categories = Object.keys(categories)
-  for (const category of categories) {
-    const element = document.createElement("button");
-    element.classList.add("dropdown-item");
-    element.appendChild(document.createTextNode(category.split("•").slice(-1)[0]));
-    dropdownMenuSource.appendChild(element);
-    element.onclick = function () {
-      onCategoryChange(category, category);
-    };
-  }
+  fetch('/Home/GetSubProducts')
+  .then(response => response.json())
+  .then(subProducts => {
+      const dropdown = document.getElementById('categoryDropdownMenuSource');
+      subProducts.forEach(subProduct => {
+          const option = document.createElement('option');
+          option.value = subProduct.id;
+          option.textContent = subProduct.name;
+          option.addEventListener('click', () => {
+              loadComplaintsForSubProduct(subProduct.id, subProduct.name);
+          });
+          dropdown.appendChild(option);
+      });
+  })
+  .catch(error => console.error('Error fetching subproducts:', error));
 }
 
-const SORT_ELEMENTS_INNER_HTML = {
-  "relevance_desc": `Relevance <span class="sort-icon-color">&#8593;</span>`,
-  "relevance_asc": `Relevance <span class="sort-icon-color">&#8595;</span>`,
-  "created_date_desc": `CreatedDate <span class="sort-icon-color">&#8593;</span>`,
-  "created_date_asc": `CreatedDate <span class="sort-icon-color">&#8595;</span>`
-};
-
-function onSortChange(value) {
-  const element = document.getElementById("sortDropdownMenuSelected");
-  element.innerHTML = SORT_ELEMENTS_INNER_HTML[value] ?? "";
-  element.setAttribute("data-sortDropdownMenuSelected", value);
-
-  renderComplaintsTableBody();
+window.deleteComplaint = function(complaintId) {
+  fetch(`/Home/DeleteComplaint/${complaintId}`, {
+      method: 'DELETE',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+  })
+  .then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+      if(data.success) {
+          window.location.reload();
+      } else {
+          alert('There was an error deleting the complaint.');
+      }
+  })
+  .catch(error => {
+      console.error('Error:', error);
+  });
 }
 
-function renderSortDropdownMenuSource() {
-  const dropdownMenuSource = document.getElementById("sortDropdownMenuSource");
+function loadComplaintsForSubProduct(subProductId, subProductName) {
+  const element = document.getElementById("categoryDropdownMenuSelected");
+  element.innerText = subProductName;
+  element.setAttribute("data-categoryDropdownMenuSelected", subProductId);
+  fetch(`/Home/GetComplaintsForSubProduct?subProductId=${subProductId}`)
+      .then(response => response.json())
+      .then(complaints => {
+          const complaintsTableBody = document.getElementById("complaintsTableBody");
+          let counter = 1;
 
-  const sortables = Object.entries(SORT_ELEMENTS_INNER_HTML);
-
-  for (const [sort_by, innerHtml] of sortables) {
-    const element = document.createElement("button");
-    element.classList.add("dropdown-item");
-    element.innerHTML = innerHtml;
-    dropdownMenuSource.appendChild(element);
-    element.onclick = function () {
-      onSortChange(sort_by);
-    };
-  }
+          const rows = complaints.reduce((rows, complaint) => {
+            rows.push(
+              `<tr>
+                <th scope="row">${counter}</th>
+                <td>${complaint.companyName}</td>
+                <td>
+                  <a href="/Home/ComplaintDetails?id=${complaint.complaintId}" class="link-underline-light">
+                    <span class="icon-color">&#128279</span>
+                  </a>
+                </td>
+                <td>${complaint.companyResponse}</td>
+                <td>${complaint.state}</td>
+                <td>${complaint.dateReceived}</td>
+                <td>
+                  <a href="/Home/EditComplaint?id=${complaint.complaintId}" class="btn btn-primary btn-sm">
+                    Edit
+                  </a>
+                </td>
+                <td>
+                  <button onclick="deleteComplaint(${complaint.complaintId})" class="btn btn-danger btn-sm">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            `
+            );
+            counter++;
+            return rows;
+          }, []);
+        
+          complaintsTableBody.innerHTML = rows.join(" ");
+      })
+      .catch(error => console.error('Error fetching complaints:', error));
 }
+
 
 (function () {
   renderDropDownSource();
-  renderSortDropdownMenuSource();
-  renderComplaintsTableBody();
+  loadComplaintsForSubProduct(115, "Debt settlement")
 })();
+
+document.addEventListener('DOMContentLoaded', (event) => {
+  const defaultSubProductId = document.getElementById('categoryDropdownMenuSource').value;
+  if (defaultSubProductId) {
+      loadComplaintsForSubProduct(115, "Debt settlement");
+  }
+});
 
 
 function getRandomColor() {
@@ -137,7 +137,7 @@ function renderChart(chartType, data) {
       data: {
           labels: labels,
           datasets: [{
-              label: '# of Complaints By Category',
+              label: '# of Complaints By Subproduct',
               data: counts,
               backgroundColor: colors,
               borderColor: borderColors,
